@@ -1,0 +1,33 @@
+name: Build APK Otomatis
+ on:
+   push:
+     branches: [ main, master ]
+   workflow_dispatch:
+ jobs:
+   build:
+     name: Bangun APK
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+     steps:
+       - name: 📥 Ambil Kode
+         uses: actions/checkout@v4
+       - name: ☕ Siapkan Java
+         uses: actions/setup-java@v4
+         with:
+           java-version: '17'
+           distribution: 'temurin'
+       - name: 📱 Siapkan Android SDK
+         uses: android-actions/setup-android@v3
+       - name: 🔧 Izin Gradle
+         run: chmod +x gradlew
+       - name: ⚡ Cache
+         uses: gradle/actions/setup-gradle@v3
+       - name: 🔨 Bangun APK
+         run: ./gradlew assembleDebug --no-daemon
+       - name: 📤 Upload APK
+         uses: actions/upload-artifact@v4
+         if: success()
+         with:
+           name: Aplikasi-Debug
+           path: app/build/outputs/apk/debug/*.apk
+           retention-days: 14
